@@ -1,0 +1,27 @@
+name:                gourl
+version:             0.1.0.0
+synopsis:            Shortens URLs
+-- description:
+homepage:            https://github.com/jayed/gourl#readme
+license:             BSD3
+license-file:        LICENSE
+author:              Jay Edwards
+maintainer:          jay@sentenai.com
+copyright:           2018 Sentenai
+category:            Utilities
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+executable gourl
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , Spock >= 0.11
+                     , mtl
+                     , text
+                     , sqlite-simple
+                     , datetime
+                     , time
+
