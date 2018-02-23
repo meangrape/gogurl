@@ -46,9 +46,9 @@ Link json
   deriving Show
 |]
 
-type Api = SpockM SqlBackend MySession MyAppState ()
+type Api = SpockM SqlBackend MySession () ()
 
-type ApiAction a = SpockAction SqlBackend MySession MyAppState a
+type ApiAction a = SpockAction SqlBackend MySession () a
 
 runSQL ::
      (HasSpock m, SpockConn m ~ SqlBackend)
@@ -66,9 +66,8 @@ errorJson code message =
 
 main :: IO ()
 main = do
-  ref <- newIORef 0
   pool <- runStdoutLoggingT $ createSqlitePool "db/links.db" 5
-  spockCfg <- defaultSpockCfg EmptySession (PCPool pool) (DummyAppState ref)
+  spockCfg <- defaultSpockCfg EmptySession (PCPool pool) ()
   runStdoutLoggingT $ runSqlPool (runMigration migrateAll) pool
   runSpock 80 (spock spockCfg app)
 
