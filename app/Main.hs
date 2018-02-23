@@ -39,8 +39,10 @@ share
 Link json
   name       T.Text
   url        T.Text
-  hits       Int
-  created_at UTCTime
+  hits       Int default=0
+  created_at UTCTime default=CURRENT_TIMESTAMP
+  UniqueN    name
+  UniqueU    url
   deriving Show
 |]
 
