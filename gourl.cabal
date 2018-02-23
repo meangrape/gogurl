@@ -21,7 +21,12 @@ executable gourl
                      , Spock >= 0.11
                      , mtl
                      , text
-                     , sqlite-simple
                      , datetime
+                     , aeson
                      , time
+                     , monad-logger
+                     , persistent
+                     , persistent-sqlite
+                     , persistent-template
+                     , blaze-html
 

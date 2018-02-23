@@ -1,54 +1,99 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE EmptyDataDecls #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
+
 module Main where
 
 import Web.Spock
 import Web.Spock.Config
 
 import Control.Applicative
+import Control.Monad.Logger (LoggingT, runStdoutLoggingT)
 import Control.Monad.Trans
-import Data.DateTime
-import Data.Monoid
+import Data.Aeson hiding (json)
 import Data.IORef
+import Data.Monoid ((<>))
 import qualified Data.Text as T
-import Data.Time.Clock    (UTCTime)
-import Database.SQLite.Simple
-import Database.SQLite.Simple.FromRow
+import Data.Time.Clock (UTCTime)
+import Database.Persist hiding (get)
+import qualified Database.Persist as P
+import Database.Persist.Sqlite hiding (get)
+import Database.Persist.TH
 
+data MySession =
+  EmptySession
 
-data MySession = EmptySession
-data MyAppState = DummyAppState (IORef Int)
-data Link = Link
-  { name       :: T.Text
-  , url        :: T.Text
-  , hits       :: Int
-  , created_at :: UTCTime
-  }
+newtype MyAppState =
+  DummyAppState (IORef Int)
 
+share
+  [mkPersist sqlSettings, mkMigrate "migrateAll"]
+  [persistLowerCase|
+Link json
+  name       T.Text
+  url        T.Text
+  hits       Int
+  created_at UTCTime
+  deriving Show
+|]
+
+type Api = SpockM SqlBackend MySession MyAppState ()
+
+type ApiAction a = SpockAction SqlBackend MySession MyAppState a
+
+runSQL ::
+     (HasSpock m, SpockConn m ~ SqlBackend)
+  => SqlPersistT (LoggingT IO) a
+  -> m a
+runSQL action = runQuery $ \conn -> runStdoutLoggingT $ runSqlConn action conn
+
+errorJson :: Int -> T.Text -> ApiAction ()
+errorJson code message =
+  json $
+  object
+    [ "result" .= String "failure"
+    , "error" .= object ["code" .= code, "message" .= message]
+    ]
 
 main :: IO ()
-main =
-    do ref <- newIORef 0
-       spockCfg <- defaultSpockCfg EmptySession PCNoDatabase (DummyAppState ref)
-       runSpock 8080 (spock spockCfg app)
+main = do
+  ref <- newIORef 0
+  pool <- runStdoutLoggingT $ createSqlitePool "db/links.db" 5
+  spockCfg <- defaultSpockCfg EmptySession (PCPool pool) (DummyAppState ref)
+  runStdoutLoggingT $ runSqlPool (runMigration migrateAll) pool
+  runSpock 80 (spock spockCfg app)
 
-app :: SpockM () MySession MyAppState ()
-app =
-    do get root $
-           text "Show links"
-       get ("hello" <//> var) $ \name ->
-           do (DummyAppState ref) <- getState
-              visitorNumber <- liftIO $ atomicModifyIORef' ref $ \i -> (i+1, i+1)
-              text ("Hello " <> name <> ", you are visitor number " <> T.pack (show visitorNumber))
-       get "links"
-            text "Redirect to root"
-       post "links"
-            text "Create a link"
-       get "links/search"
-            text "Here's a link"
-       get ("links" <//> id <//> "delete") $ \id ->
-            text "Delete a link"
-       get ("links" <//> id <//> "edit") $ \id ->
-            text "Edit a link"
-       get (name <//> ABC)
-            text "The real deal"
-
+app :: Api
+app = do
+  get root $ do
+    toplinks <- runSQL $ selectList [] [Desc LinkHits, LimitTo 30]
+    json $ object ["result" .= String "success", "links" .= toplinks]
+  get "links" $ redirect "/"
+  post "links" $ do
+    maybeLink <- jsonBody' :: ApiAction (Maybe Link)
+    case maybeLink of
+      Nothing -> errorJson 1 "Failed to parse request body as Link"
+      Just theLink -> do
+        newID <- runSQL $ insert theLink
+        json $ object ["result" .= String "success", "id" .= newID]
+  get ("links" <//> var <//> "delete") $ \linkID -> do
+    delLink <- runSQL $ deleteWhere [LinkId ==. linkID]
+    json $ object ["result" .= String "success", "id" .= linkID]
+  get ("links" <//> var <//> "edit" <//> var) $ \linkName linkURL -> do
+    editLink <-
+      runSQL $ updateWhere [LinkName ==. linkName] [LinkUrl =. linkURL]
+    json $ object ["result" .= String "success", "id" .= linkName]
+  get var $ \linkName -> do
+    maybeLink <- runSQL $ selectFirst [LinkName ==. linkName] []
+    case maybeLink of
+      Nothing -> errorJson 2 "No record found"
+      Just theLink -> do
+        let theURL = linkUrl $ entityVal theLink
+        redirect theURL
