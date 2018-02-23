@@ -30,9 +30,6 @@ import Database.Persist.TH
 data MySession =
   EmptySession
 
-newtype MyAppState =
-  DummyAppState (IORef Int)
-
 share
   [mkPersist sqlSettings, mkMigrate "migrateAll"]
   [persistLowerCase|
