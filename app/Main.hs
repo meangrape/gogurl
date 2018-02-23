@@ -97,5 +97,6 @@ app = do
     case maybeLink of
       Nothing -> errorJson 2 "No record found"
       Just theLink -> do
+        runSQL $ updateWhere [LinkName ==. linkName] [LinkHits +=. 1]
         let theURL = linkUrl $ entityVal theLink
         redirect theURL
