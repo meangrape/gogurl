@@ -1,8 +1,8 @@
-name:                gourl
+name:                gogurl
 version:             0.1.0.0
-synopsis:            Shortens URLs
--- description:
-homepage:            https://github.com/jayed/gourl#readme
+synopsis:            Shortens URLs and redirects you
+description:         gogurl provides a server that remembers short names for common URLs
+homepage:            https://github.com/jayed/gogurl#readme
 license:             BSD3
 license-file:        LICENSE
 author:              Jay Edwards
@@ -13,7 +13,7 @@ build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
 
-executable gourl
+executable gogurl
   hs-source-dirs:      app
   main-is:             Main.hs
   default-language:    Haskell2010
@@ -28,5 +28,4 @@ executable gourl
                      , persistent
                      , persistent-sqlite
                      , persistent-template
-                     , blaze-html
 
