@@ -84,7 +84,7 @@ app = do
   get ("links" <//> var <//> "delete") $ \linkName -> do
     delLink <- runSQL $ deleteWhere [LinkName ==. linkName]
     json $ object ["result" .= String "success", "name" .= linkName]
-  -- The 2d value must be a HTTP escaped URL
+  -- The 2d value must be a URL
   get ("links" <//> var <//> "edit" <//> var) $ \linkName linkURL -> do
     editLink <-
       runSQL $ updateWhere [LinkName ==. linkName] [LinkUrl =. linkURL]
