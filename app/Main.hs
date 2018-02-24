@@ -36,8 +36,8 @@ share
 Link json
   name       T.Text
   url        T.Text
-  hits       Int Maybe default=0
-  created_at UTCTime Maybe default=CURRENT_TIMESTAMP
+  hits       Int default=0
+  created_at UTCTime default=CURRENT_TIMESTAMP
   UniqueN    name
   UniqueU    url
   deriving Show
@@ -94,6 +94,6 @@ app = do
     case maybeLink of
       Nothing -> errorJson 2 "No record found"
       Just theLink -> do
-        runSQL $ updateWhere [LinkName ==. linkName] [LinkHits +=. Just 1]
+        runSQL $ updateWhere [LinkName ==. linkName] [LinkHits +=. 1]
         let theURL = linkUrl $ entityVal theLink
         redirect theURL
