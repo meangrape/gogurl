@@ -1,5 +1,5 @@
 name:                gogurl
-version:             0.1.0.0
+version:             0.2.0.0
 synopsis:            Shortens URLs and redirects you
 description:         gogurl provides a server that remembers short names for common URLs
 homepage:            https://github.com/jayed/gogurl#readme
