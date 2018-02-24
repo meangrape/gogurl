@@ -71,7 +71,7 @@ main = do
 app :: Api
 app = do
   get root $ do
-    toplinks <- runSQL $ selectList [] [Desc LinkHits, LimitTo 30]
+    toplinks <- runSQL $ selectList [] [Desc LinkHits]
     json $ object ["result" .= String "success", "links" .= toplinks]
   get "links" $ redirect "/"
   post "links" $ do
