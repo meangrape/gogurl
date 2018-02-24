@@ -23,7 +23,6 @@ import Data.Monoid ((<>))
 import qualified Data.Text as T
 import Data.Time.Clock (UTCTime)
 import Database.Persist hiding (get)
-import qualified Database.Persist as P
 import Database.Persist.Sqlite hiding (get)
 import Database.Persist.TH
 
