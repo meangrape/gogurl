@@ -85,8 +85,7 @@ app = do
     json $ object ["result" .= String "success", "name" .= linkName]
   -- The 2d value must be a URL
   get ("links" <//> var <//> "edit" <//> var) $ \linkName linkURL -> do
-    editLink <-
-      runSQL $ updateWhere [LinkName ==. linkName] [LinkUrl =. linkURL]
+    runSQL $ updateWhere [LinkName ==. linkName] [LinkUrl =. linkURL]
     json $ object ["result" .= String "success", "id" .= linkName]
   get var $ \linkName -> do
     maybeLink <- runSQL $ selectFirst [LinkName ==. linkName] []
