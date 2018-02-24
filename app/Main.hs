@@ -81,7 +81,7 @@ app = do
         newID <- runSQL $ insert theLink
         json $ object ["result" .= String "success", "id" .= newID]
   get ("links" <//> var <//> "delete") $ \linkName -> do
-    delLink <- runSQL $ deleteWhere [LinkName ==. linkName]
+    runSQL $ deleteWhere [LinkName ==. linkName]
     json $ object ["result" .= String "success", "name" .= linkName]
   -- The 2d value must be a URL
   get ("links" <//> var <//> "edit" <//> var) $ \linkName linkURL -> do
