@@ -10,6 +10,8 @@ Some other examples:
 * go/drive -- Google drive
 * go/docs -- documentation
 * go/gh -- Github
+* go/koreana -- Koreana's reservations page
+* go/flour -- Flour Bakery's order page
 
 It's meant to be hosted at "go" in your local domain.
 The fastest, most fool-proof way is to make an /etc/hosts entry.
