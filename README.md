@@ -41,8 +41,14 @@ At that point you can access the various API endpoints:
    }
    ```
 
+Here's the invocation to use if you're on the gogurl server:
    `curl -XPOST -H "Content-Type: application/json" -d '{"name":"mail","url":"https://mail.google.com/a/sentenai.com", "hits":0, "created_at"
 :"2018-02-27T11:46:36Z"}' http://go/links`
+
+Here's how to curl it remotely, with a client certificate:
+   `-XPOST -H "Content-Type: application/json" -E ./meangrape_hackage.pem -d
+   '{"name":"pro","url":"https://graphs.sentenai.net/prometheus", "hits":0,
+   "created_at":"2018-02-27T11:46:36Z"}' https://go.sentenai.net/links`
 
 **GET /links/$name/edit/$newurl**
   Edits the target URL for a name
