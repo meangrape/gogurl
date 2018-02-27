@@ -5,9 +5,11 @@ So, if you go to "https://go/mail" in your browser,
 it will redirect you to your Google inbox (assuming
 you have created the database entry).
 
-go/cal -- Google calendar
-go/drive -- Google drive
-go/docs -- docs.sentenai.com
+Some other examples:
+* go/cal -- Google calendar
+* go/drive -- Google drive
+* go/docs -- documentation
+* go/gh -- Github
 
 It's meant to be hosted at "go" in your local domain.
 The fastest, most fool-proof way is to make an /etc/hosts entry.
