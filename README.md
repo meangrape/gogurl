@@ -23,6 +23,7 @@ which you should, put an nginx server in front.
 
 At that point you can access the various API endpoints:
 
+# API
 **GET /**
   prints all the links we know about
   This is terrible, ugly, and only barely useful.
@@ -63,3 +64,57 @@ Here's how to curl it remotely, with a client certificate:
 
 **GET /links/$name/delete**
   Deletes the named shortcut
+
+
+# Installation
+
+If you don't have [stack](https://docs.haskellstack.org/en/stable/README/) installed, install it.
+
+Checkout the git repository, `git clone https://github.com/jayed/gogurl.git
+./gogurl`
+
+Run `stack setup`; if you have installed stack from your OS package manager, or
+installed it some time ago, you might need to run `stack upgrade` and then
+`stack setup`. Once it finishes downloading and installing GHC, run `stack
+build` to download the dependencies and compile them and the `gogurl` binary.
+`stack install` will copy `gogurl` into `~/.local/bin`.
+
+Currently, it creates a pool of 5 database connections and serves on \*:8082.
+Both of these are hard-coded in app/Main.hs at the moment.
+
+# Nginx
+
+You will want nginx in front of gogurl. One: you don't want people sniffing on
+the URLs you go to. Two: you don't want people to overwrite your links
+with URLs pointing to malicious software. To be clear, gogurl does *absolutely
+nothing to enforce security of any kind on it's own.*
+
+Creating client certificates is out of scope for this documentation, but that's
+my preferred method for controlling website access. The relevant portion of my
+nginxx config looks like this:
+
+    ```nginx
+    server {
+    listen       443 ssl;
+    server_name  go.${FQDN} go;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    #access_log  logs/host.access.log  main;
+    ssl_certificate        certs/$YOUR.crt;
+    ssl_certificate_key    certs/$YOUR.key;
+    ssl_client_certificate certs/ca.crt;
+    ssl_verify_client      on;
+    ssl_dhparam            certs/dhparam.pem;
+
+    ssl_session_cache    shared:SSL:1m;
+    ssl_session_timeout  5m;
+
+    ssl_protocols TLSv1.1 TLSv1.2;
+    ssl_prefer_server_ciphers  on;
+    ssl_ciphers  ECDH+AESGCM:ECDH+AES256:ECDH+AES128:DHE+AES128:!ADH:!AECDH:!MD5!aNULL;
+
+    location / {
+        proxy_pass http://127.0.0.1:8082;
+    }
+    ```
