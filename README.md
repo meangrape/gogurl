@@ -33,7 +33,8 @@ At that point you can access the various API endpoints:
    "url":  "long_url",
    "hits": 0,
    "created_at: "2018-01-01T00.00.00Z"
-   }```
+   }
+   ```
 
    `curl -XPOST -H "Content-Type: application/json" -d '{"name":"mail","url":"https://mail.google.com/a/sentenai.com", "hits":0, "created_at"
 :"2018-02-27T11:46:36Z"}' http://go/links`
