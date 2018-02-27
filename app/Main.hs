@@ -37,8 +37,8 @@ Link json
   url        T.Text
   hits       Int default=0
   created_at UTCTime default=CURRENT_TIMESTAMP
-  UniqueN    name
-  UniqueU    url
+  UniqueName name
+  UniqueURL  url
   deriving Show
 |]
 
@@ -70,8 +70,8 @@ main = do
 app :: Api
 app = do
   get root $ do
-    toplinks <- runSQL $ selectList [] [Desc LinkHits]
-    json $ object ["result" .= String "success", "links" .= toplinks]
+    topLinks <- runSQL $ selectList [] [Desc LinkHits]
+    json $ object ["result" .= String "success", "links" .= topLinks]
   get "links" $ redirect "/"
   post "links" $ do
     maybeLink <- jsonBody' :: ApiAction (Maybe Link)
