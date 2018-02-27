@@ -30,7 +30,8 @@ At that point you can access the various API endpoints:
   get this deployed.
 
 **GET /links**
-  redirects to /
+  redirects to http://go/ -- this is because we want to redirect through the
+  nginx server in front of gogurl; we don't want to redirect straight to gogurl.
 
 **POST /links**
   when sent the correct JSON, makes a new link
