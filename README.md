@@ -93,7 +93,7 @@ Creating client certificates is out of scope for this documentation, but that's
 my preferred method for controlling website access. The relevant portion of my
 nginxx config looks like this:
 
-    ```nginx
+    ```
     server {
     listen       443 ssl;
     server_name  go.${FQDN} go;
