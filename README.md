@@ -23,6 +23,9 @@ At that point you can access the various API endpoints:
 
 **GET /**
   prints all the links we know about
+  This is terrible, ugly, and only barely useful.
+  But I'm tired of learning about Haskell and want to
+  get this deployed.
 
 **GET /links**
   redirects to /
