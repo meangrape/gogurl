@@ -29,6 +29,7 @@ import Database.Persist.TH
 data MySession =
   EmptySession
 
+-- Persistent schema
 share
   [mkPersist sqlSettings, mkMigrate "migrateAll"]
   [persistLowerCase|
@@ -46,6 +47,7 @@ type Api = SpockM SqlBackend MySession () ()
 
 type ApiAction a = SpockAction SqlBackend MySession () a
 
+-- Execute SQL in the context of a session
 runSQL ::
      (HasSpock m, SpockConn m ~ SqlBackend)
   => SqlPersistT (LoggingT IO) a
@@ -71,7 +73,7 @@ app :: Api
 app = do
   get root $ do
     topLinks <- runSQL $ selectList [] [Desc LinkHits]
-    json $ object ["result" .= String "success", "links" .= topLinks]
+    html $ T.pack $ show (map (linkUrl . entityVal) topLinks :: [T.Text])
   get "links" $ redirect "/"
   post "links" $ do
     maybeLink <- jsonBody' :: ApiAction (Maybe Link)
