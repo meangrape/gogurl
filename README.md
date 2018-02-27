@@ -46,9 +46,13 @@ Here's the invocation to use if you're on the gogurl server:
 :"2018-02-27T11:46:36Z"}' http://go/links`
 
 Here's how to curl it remotely, with a client certificate:
-   `curl -XPOST -H "Content-Type: application/json" -E ./meangrape_hackage.pem -d
+   `curl -XPOST -H "Content-Type: application/json" -E ./meangrape.pem -d
    '{"name":"pro","url":"https://graphs.sentenai.net/prometheus", "hits":0,
    "created_at":"2018-02-27T11:46:36Z"}' https://go.sentenai.net/links`
+
+   You'll notice the full domain name. This is because in nginx, in order to
+   stop TLS complaining at us, we use `go.domain.tld` as the server_name with an
+   alias to `go`
 
 **GET /links/$name/edit/$newurl**
   Edits the target URL for a name
