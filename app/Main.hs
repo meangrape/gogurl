@@ -67,7 +67,7 @@ main = do
   pool <- runStdoutLoggingT $ createSqlitePool "db/links.db" 5
   spockCfg <- defaultSpockCfg EmptySession (PCPool pool) ()
   runStdoutLoggingT $ runSqlPool (runMigration migrateAll) pool
-  runSpock 80 (spock spockCfg app)
+  runSpock 8082 (spock spockCfg app)
 
 app :: Api
 app = do
