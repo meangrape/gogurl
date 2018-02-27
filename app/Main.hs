@@ -74,7 +74,7 @@ app = do
   get root $ do
     topLinks <- runSQL $ selectList [] [Desc LinkHits]
     html $ T.pack $ show (map (linkUrl . entityVal) topLinks :: [T.Text])
-  get "links" $ redirect "/"
+  get "links" $ redirect "https://go/"
   post "links" $ do
     maybeLink <- jsonBody' :: ApiAction (Maybe Link)
     case maybeLink of
