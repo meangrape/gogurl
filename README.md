@@ -1,7 +1,7 @@
 # gogurl
 
 gogurl is a URL shortener/redirector.
-So, if you go to "https://go/mail" in your browser,
+So, if you go to "http://go/mail" in your browser,
 it will redirect you to your Google inbox (assuming
 you have created the database entry).
 
