@@ -39,9 +39,9 @@ At that point you can access the various API endpoints:
    `curl -XPOST -H "Content-Type: application/json" -d '{"name":"mail","url":"https://mail.google.com/a/sentenai.com", "hits":0, "created_at"
 :"2018-02-27T11:46:36Z"}' http://go/links`
 
-**GET /links/<name>/edit/<new URL>**
+**GET /links/$name/edit/$newurl**
   Edits the target URL for a name
   The new URL must be HTTP-encoded
 
-**GET /links/<name>/delete**
+**GET /links/$name/delete**
   Deletes the named shortcut
