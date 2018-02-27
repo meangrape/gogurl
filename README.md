@@ -32,7 +32,7 @@ At that point you can access the various API endpoints:
    "name": "shortname",
    "url":  "long_url",
    "hits": 0,
-   "created_at: "2018-01-01T00.00.00Z
+   "created_at: "2018-01-01T00.00.00Z"
    }```
 
    `curl -XPOST -H "Content-Type: application/json" -d '{"name":"mail","url":"https://mail.google.com/a/sentenai.com", "hits":0, "created_at"
