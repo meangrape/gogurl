@@ -1,12 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE EmptyDataDecls #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Main where
@@ -15,44 +8,46 @@ import Web.Spock
 import Web.Spock.Config
 
 import Control.Applicative
-import Control.Monad.Logger (LoggingT, runStdoutLoggingT)
-import Control.Monad.Trans
 import Data.Aeson hiding (json)
+import Data.Char (toLower)
 import Data.IORef
 import Data.Monoid ((<>))
+import Database.SQLite.Simple
+  (FromRow, Only(Only, fromOnly), Query(Query), ToRow)
+import qualified Database.SQLite.Simple as Sqlite
+import Data.Text (Text)
 import qualified Data.Text as T
-import Data.Time.Clock (UTCTime)
-import Database.Persist hiding (get)
-import Database.Persist.Sqlite hiding (get)
-import Database.Persist.TH
+import qualified Data.Text.IO as T
+
 
 data MySession =
   EmptySession
 
--- Persistent schema
-share
-  [mkPersist sqlSettings, mkMigrate "migrateAll"]
-  [persistLowerCase|
-Link json
-  name       T.Text
-  url        T.Text
-  hits       Int default=0
-  created_at UTCTime default=CURRENT_TIMESTAMP
-  UniqueName name
-  UniqueURL  url
-  deriving Show
-|]
+data Link = Link
+  { linkName :: Text
+  , linkUrl :: Text
+  }
 
-type Api = SpockM SqlBackend MySession () ()
+instance FromJSON Link where
+  parseJSON =
+    withObject "link"
+      (\o -> Link <$> o .: "name" <*> o .: "url")
 
-type ApiAction a = SpockAction SqlBackend MySession () a
+type Api = SpockM Sqlite.Connection MySession () ()
 
--- Execute SQL in the context of a session
-runSQL ::
-     (HasSpock m, SpockConn m ~ SqlBackend)
-  => SqlPersistT (LoggingT IO) a
-  -> m a
-runSQL action = runQuery $ \conn -> runStdoutLoggingT $ runSqlConn action conn
+type ApiAction a = SpockAction Sqlite.Connection MySession () a
+
+sqlQuery :: (FromRow r, ToRow s) => Query -> s -> ApiAction [r]
+sqlQuery query row =
+  runQuery (\conn -> Sqlite.query conn query row)
+
+sqlQuery_ :: FromRow r => Query -> ApiAction [r]
+sqlQuery_ query =
+  runQuery (\conn -> Sqlite.query_ conn query)
+
+sqlStmt :: (HasSpock m, SpockConn m ~ Sqlite.Connection, ToRow r) => Query -> r -> m ()
+sqlStmt query row =
+  runQuery (\conn -> Sqlite.execute conn query row)
 
 errorJson :: Int -> T.Text -> ApiAction ()
 errorJson code message =
@@ -64,36 +59,50 @@ errorJson code message =
 
 main :: IO ()
 main = do
-  pool <- runStdoutLoggingT $ createSqlitePool "db/links.db" 5
-  spockCfg <- defaultSpockCfg EmptySession (PCPool pool) ()
-  runStdoutLoggingT $ runSqlPool (runMigration migrateAll) pool
-  runSpock 8082 (spock spockCfg app)
+  spockCfg <- defaultSpockCfg EmptySession (PCConn connBuilder) ()
+  createTables <- T.readFile "db/links.sql"
+  runSpock 8082 $ spock spockCfg $ do
+    sqlStmt (Query createTables) ()
+    app
+  where
+    connBuilder :: ConnBuilder Sqlite.Connection
+    connBuilder =
+      ConnBuilder
+        { cb_createConn = Sqlite.open "db/links.db"
+        , cb_destroyConn = Sqlite.close
+        , cb_poolConfiguration =
+            PoolCfg
+              { pc_stripes = 1 -- Number of independently managed database pools
+              , pc_resPerStripe = 5 -- Number of connections per pool
+              , pc_keepOpenTime = 5 -- Keepalive, in seconds
+              }
+        }
 
 app :: Api
 app = do
   get root $ do
-    topLinks <- runSQL $ selectList [] [Desc LinkHits]
-    html $ T.pack $ show (map (linkUrl . entityVal) topLinks :: [T.Text])
+    topUrls <- sqlQuery "SELECT url FROM Link ORDER BY hits DESC" ()
+    html $ T.pack $ show (map fromOnly topUrls :: [Text])
   get "links" $ redirect "https://go/"
   post "links" $ do
     maybeLink <- jsonBody' :: ApiAction (Maybe Link)
     case maybeLink of
       Nothing -> errorJson 1 "Failed to parse request body as Link"
-      Just theLink -> do
-        newID <- runSQL $ insert theLink
+      Just Link{linkName, linkUrl} -> do
+        sqlStmt "INSERT INTO link (name, url) VALUES (?, ?)" (linkName, linkUrl)
+        newID <- runQuery Sqlite.lastInsertRowId
         json $ object ["result" .= String "success", "id" .= newID]
   get ("links" <//> var <//> "delete") $ \linkName -> do
-    runSQL $ deleteWhere [LinkName ==. linkName]
+    sqlStmt "DELETE FROM link WHERE name = ?" (Only (linkName :: Text))
     json $ object ["result" .= String "success", "name" .= linkName]
   -- The 2d value must be a URL
-  get ("links" <//> var <//> "edit" <//> var) $ \linkName linkURL -> do
-    runSQL $ updateWhere [LinkName ==. linkName] [LinkUrl =. linkURL]
+  get ("links" <//> var <//> "edit" <//> var) $ \linkName linkUrl -> do
+    sqlStmt "UPDATE link SET url = ? WHERE name = ?" (linkUrl :: Text, linkName :: Text)
     json $ object ["result" .= String "success", "id" .= linkName]
   get var $ \linkName -> do
-    maybeLink <- runSQL $ selectFirst [LinkName ==. linkName] []
-    case maybeLink of
-      Nothing -> errorJson 2 "No record found"
-      Just theLink -> do
-        runSQL $ updateWhere [LinkName ==. linkName] [LinkHits +=. 1]
-        let theURL = linkUrl $ entityVal theLink
-        redirect theURL
+    linkUrls <- sqlQuery "SELECT url FROM link WHERE name = ?" (Only (linkName :: Text))
+    case linkUrls of
+      [] -> errorJson 2 "No record found"
+      Only linkUrl:_ -> do
+        sqlStmt "UPDATE link SET hits = hits + 1 WHERE name = ?" (Only linkName)
+        redirect linkUrl
