@@ -4,5 +4,5 @@ CREATE TABLE IF NOT EXISTS "link" (
   "hits" INTEGER NOT NULL DEFAULT 0,
   "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX IF NOT EXISTS "link_hits" on link("hits" DESC);
+CREATE INDEX IF NOT EXISTS "idx_link_hits" on link("hits" DESC);
 
