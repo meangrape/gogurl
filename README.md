@@ -115,3 +115,7 @@ nginxx config looks like this:
         proxy_pass http://127.0.0.1:8082;
     }
     ```
+
+# Contributors
+
+Mitchell W Rosen
