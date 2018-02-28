@@ -13,11 +13,13 @@ import Data.Aeson
   )
 import Data.Int (Int64)
 import Database.SQLite.Simple
-  ( FromRow
+  ( Connection
+  , FromRow
   , Only(Only, fromOnly)
   , Query(Query)
   , ToRow
   )
+import Data.Pool
 import qualified Database.SQLite.Simple as Sqlite
 import Data.Text (Text)
 import qualified Data.Text.IO as T (readFile)
@@ -66,8 +68,10 @@ main = join (execParser (info (helper <*> parser) mempty))
 
 main' :: Int -> String -> IO ()
 main' port database = do
-  let withConn :: (Sqlite.Connection -> IO r) -> IO r
-      withConn = Sqlite.withConnection database
+  pool <- createPool (Sqlite.open database) Sqlite.close 1 5 5
+
+  let withConn :: (Connection -> IO r) -> IO r
+      withConn = withResource pool
 
   -- Create tables if they don't exist.
   createTables <- T.readFile "db/links.sql"
@@ -76,7 +80,7 @@ main' port database = do
   -- Run the web server.
   scotty port (app withConn)
 
-app :: (forall r. (Sqlite.Connection -> IO r) -> IO r) -> ScottyM ()
+app :: (forall r. (Connection -> IO r) -> IO r) -> ScottyM ()
 app withConn = do
   -- Partially apply Sqlite functions to the given database runner, so the
   -- handlers become more readable.
