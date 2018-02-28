@@ -4,6 +4,7 @@
 
 module Main where
 
+import Control.Monad (join)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson
   ( FromJSON, Value(String)
@@ -20,6 +21,7 @@ import Database.SQLite.Simple
 import qualified Database.SQLite.Simple as Sqlite
 import Data.Text (Text)
 import qualified Data.Text.IO as T (readFile)
+import Options.Applicative
 import Web.Scotty
 
 data Link = Link
@@ -39,16 +41,40 @@ errorJson code message =
       ]
 
 main :: IO ()
-main = do
+main = join (execParser (info (helper <*> parser) mempty))
+  where
+    parser =
+      main'
+        <$> option auto
+              (mconcat
+                [ short 'p'
+                , long "port"
+                , help "port"
+                , metavar "PORT"
+                , value 8082
+                , showDefault
+                ])
+        <*> strOption
+              (mconcat
+                [ short 'd'
+                , long "database"
+                , help "Sqlite database connection string"
+                , metavar "DATABASE"
+                , value "db/links.db"
+                , showDefault
+                ])
+
+main' :: Int -> String -> IO ()
+main' port database = do
   let withConn :: (Sqlite.Connection -> IO r) -> IO r
-      withConn = Sqlite.withConnection "db/links.db"
+      withConn = Sqlite.withConnection database
 
   -- Create tables if they don't exist.
   createTables <- T.readFile "db/links.sql"
   withConn (\conn -> Sqlite.execute conn (Query createTables) ())
 
   -- Run the web server.
-  scotty 8082 (app withConn)
+  scotty port (app withConn)
 
 app :: (forall r. (Sqlite.Connection -> IO r) -> IO r) -> ScottyM ()
 app withConn = do
