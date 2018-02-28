@@ -118,4 +118,4 @@ nginxx config looks like this:
 
 # Contributors
 
-Mitchell W Rosen
+[Mitchell W Rosen](https://github.com/mitchellwrosen)
