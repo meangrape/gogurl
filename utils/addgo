@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+NAME="$1"
+URL="$2"
+CERT=""
+SERVER=""
+
+if [[ -z "$CERT" ]]; then
+    echo "Please edit $0 so it points to your client certificate."
+    exit
+fi
+
+if [[ -z "$SERVER" ]]; then
+    echo "Please edit $0 so it points to your server."
+    exit
+fi
+
+curl -XPOST -H "Content-Type: application/json" -E $CERT -d \
+\{\"name\":\"$NAME\",\"url\":\"$URL\"\} https://$SERVER/links

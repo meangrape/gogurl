@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+NAME="$1"
+CERT=""
+SERVER=""
+
+if [[ -z "$CERT" ]]; then
+    echo "Please edit $0 so it points to your client certificate."
+    exit
+fi
+
+if [[ -z "$SERVER" ]]; then
+    echo "Please edit $0 so it points to your server."
+    exit
+fi
+
+curl -E $CERT https://$SERVER/links/$NAME/delete
