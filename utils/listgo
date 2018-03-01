@@ -13,8 +13,13 @@ if [[ -z "$SERVER" ]]; then
     exit
 fi
 
-IFS=",[]"
+# Bash arrays ahead
+IFS="[]"
 links=($( curl -E $CERT -s http://$SERVER ))
 unset IFS
-printf '%s\n' "${links[@]}"
 
+# Remove all commas in array elements
+declare -a nocomma=( ${links[@]/,/} )
+
+# Replace two "s with a space
+printf '%s\n' "${nocomma[@]/\"\"/\ }"
