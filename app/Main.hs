@@ -1,30 +1,30 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Main where
 
-import Web.Spock
-import Web.Spock.Config
-
-import Control.Applicative
-import Data.Aeson hiding (json)
-import Data.Char (toLower)
-import Data.IORef
-import Data.Monoid ((<>))
-import Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Text.IO as T
+import Control.Monad (join)
+import Control.Monad.IO.Class (liftIO)
+import Data.Aeson
+  ( FromJSON, Value(String)
+  , (.:), (.=)
+  , object, parseJSON, withObject
+  )
+import Data.Int (Int64)
 import Database.SQLite.Simple
-  ( FromRow
+  ( Connection
+  , FromRow
   , Only(Only, fromOnly)
   , Query(Query)
   , ToRow
   )
+import Data.Pool
 import qualified Database.SQLite.Simple as Sqlite
-
-data MySession =
-  EmptySession
+import Data.Text (Text)
+import qualified Data.Text.IO as T (readFile)
+import Options.Applicative
+import Web.Scotty
 
 data Link = Link
   { linkName :: Text
@@ -34,81 +34,100 @@ data Link = Link
 instance FromJSON Link where
   parseJSON = withObject "link" (\o -> Link <$> o .: "name" <*> o .: "url")
 
-type Api = SpockM Sqlite.Connection MySession () ()
-
-type ApiAction a = SpockAction Sqlite.Connection MySession () a
-
-sqlQuery :: (FromRow r, ToRow s) => Query -> s -> ApiAction [r]
-sqlQuery query row = runQuery (\conn -> Sqlite.query conn query row)
-
-sqlQuery_ :: FromRow r => Query -> ApiAction [r]
-sqlQuery_ query = runQuery (\conn -> Sqlite.query_ conn query)
-
-sqlStmt ::
-     (HasSpock m, SpockConn m ~ Sqlite.Connection, ToRow r)
-  => Query
-  -> r
-  -> m ()
-sqlStmt query row = runQuery (\conn -> Sqlite.execute conn query row)
-
-errorJson :: Int -> Text -> ApiAction ()
+errorJson :: Int -> Text -> ActionM ()
 errorJson code message =
   json $
-  object
-    [ "result" .= String "failure"
-    , "error" .= object ["code" .= code, "message" .= message]
-    ]
+    object
+      [ "result" .= String "failure"
+      , "error" .= object ["code" .= code, "message" .= message]
+      ]
 
 main :: IO ()
-main = do
-  spockCfg <- defaultSpockCfg EmptySession (PCConn connBuilder) ()
-  createTables <- T.readFile "db/links.sql"
-  runSpock 8082 $
-    spock spockCfg $ do
-      sqlStmt (Query createTables) ()
-      app
+main = join (execParser (info (helper <*> parser) mempty))
   where
-    connBuilder :: ConnBuilder Sqlite.Connection
-    connBuilder =
-      ConnBuilder
-      { cb_createConn = Sqlite.open "db/links.db"
-      , cb_destroyConn = Sqlite.close
-      , cb_poolConfiguration =
-          PoolCfg
-          { pc_stripes = 1 -- Number of independently managed database pools
-          , pc_resPerStripe = 5 -- Number of connections per pool
-          , pc_keepOpenTime = 5 -- Keepalive, in seconds
-          }
-      }
+    parser =
+      main'
+        <$> option auto
+              (mconcat
+                [ short 'p'
+                , long "port"
+                , help "port"
+                , metavar "PORT"
+                , value 8082
+                , showDefault
+                ])
+        <*> strOption
+              (mconcat
+                [ short 'd'
+                , long "database"
+                , help "Sqlite database connection string"
+                , metavar "DATABASE"
+                , value "db/links.db"
+                , showDefault
+                ])
 
-app :: Api
-app = do
-  get root $ do
-    topUrls <- sqlQuery "SELECT url FROM Link ORDER BY hits DESC" ()
-    html $ T.pack $ show (map fromOnly topUrls :: [Text])
-  get "links" $ redirect "https://go/"
-  post "links" $ do
-    maybeLink <- jsonBody' :: ApiAction (Maybe Link)
-    case maybeLink of
-      Nothing -> errorJson 1 "Failed to parse request body as Link"
-      Just Link {linkName, linkUrl} -> do
-        sqlStmt "INSERT INTO link (name, url) VALUES (?, ?)" (linkName, linkUrl)
-        newID <- runQuery Sqlite.lastInsertRowId
-        json $ object ["result" .= String "success", "id" .= newID]
-  get ("links" <//> var <//> "delete") $ \linkName -> do
-    sqlStmt "DELETE FROM link WHERE name = ?" (Only (linkName :: Text))
-    json $ object ["result" .= String "success", "name" .= linkName]
-  -- The 2d value must be a URL
-  get ("links" <//> var <//> "edit" <//> var) $ \linkName linkUrl -> do
-    sqlStmt
-      "UPDATE link SET url = ? WHERE name = ?"
-      (linkUrl :: Text, linkName :: Text)
-    json $ object ["result" .= String "success", "id" .= linkName]
-  get var $ \linkName -> do
-    linkUrls <-
-      sqlQuery "SELECT url FROM link WHERE name = ?" (Only (linkName :: Text))
-    case linkUrls of
+main' :: Int -> String -> IO ()
+main' port database = do
+  pool <- createPool (Sqlite.open database) Sqlite.close 1 5 5
+
+  let withConn :: (Connection -> IO r) -> IO r
+      withConn = withResource pool
+
+  -- Create tables if they don't exist.
+  createTables <- T.readFile "db/links.sql"
+  withConn (\conn -> Sqlite.execute conn (Query createTables) ())
+
+  -- Run the web server.
+  scotty port (app withConn)
+
+app :: (forall r. (Connection -> IO r) -> IO r) -> ScottyM ()
+app withConn = do
+  -- Partially apply Sqlite functions to the given database runner, so the
+  -- handlers become more readable.
+
+  let -- Execute a SQL statement.
+      statement :: ToRow v => Query -> v -> ActionM ()
+      statement q v = liftIO (withConn (\conn -> Sqlite.execute conn q v))
+
+  let -- Execute a SQL query.
+      query :: (FromRow r, ToRow v) => Query -> v -> ActionM [r]
+      query q v = liftIO (withConn (\conn -> Sqlite.query conn q v))
+
+  let -- Get the rowid of the last successful INSERT statement.
+      lastInsertRowId :: ActionM Int64
+      lastInsertRowId = liftIO (withConn Sqlite.lastInsertRowId)
+
+  -- Here are the actual handlers.
+
+  get "/" $ do
+    topUrls <- query "SELECT url FROM Link ORDER BY hits DESC" ()
+    json (map fromOnly topUrls :: [Text])
+
+  get "/links" $ do
+    redirect "https://go/"
+
+  post "/links" $ do
+    Link name url <- jsonData
+    statement "INSERT INTO link (name, url) VALUES (?, ?)" (name, url)
+    newID <- lastInsertRowId
+    json $ object ["result" .= String "success", "id" .= newID]
+
+  get "/links/:name/delete" $ do
+    name <- param "name"
+    statement "DELETE FROM link WHERE name = ?" (Only (name :: Text))
+    json $ object ["result" .= String "success", "name" .= name]
+
+  get "/links/:name/edit/:url" $ do
+    name :: Text <- param "name"
+    url :: Text <- param "url"
+    statement "UPDATE link SET url = ? WHERE name = ?" (url, name)
+    json $ object ["result" .= String "success", "id" .= name]
+
+  get "/:name" $ do
+    name :: Text <- param "name"
+    urls <- query "SELECT url FROM link WHERE name = ?" (Only name)
+    case urls of
       [] -> errorJson 2 "No record found"
-      Only linkUrl:_ -> do
-        sqlStmt "UPDATE link SET hits = hits + 1 WHERE name = ?" (Only linkName)
-        redirect linkUrl
+      Only url:_ -> do
+        statement "UPDATE link SET hits = hits + 1 WHERE name = ?" (Only name)
+        redirect url
