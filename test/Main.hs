@@ -20,7 +20,7 @@ main = runManaged $ do
 
   (@?= "Location: bar\r\n")
     =<< bash "curl -i -s localhost:16789/foo | grep Location"
-  (@?= "[\"bar\"]")
+  (@?= "[[\"foo\",\"bar\"]]")
     =<< bash "curl -s localhost:16789/"
 
   -- Update: foo -> qux
@@ -28,7 +28,7 @@ main = runManaged $ do
 
   (@?= "Location: qux\r\n")
     =<< bash "curl -i -s localhost:16789/foo | grep Location"
-  (@?= "[\"qux\"]")
+  (@?= "[[\"foo\",\"qux\"]]")
     =<< bash "curl -s localhost:16789/"
 
   -- Delete: foo -> qux
