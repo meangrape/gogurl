@@ -16,8 +16,10 @@ import Data.Aeson
   , withObject
   )
 import Data.Int (Int64)
+import Data.Monoid ((<>))
 import Data.Pool
 import Data.Text (Text)
+import Data.Text.Lazy (fromStrict)
 import qualified Data.Text.IO as T (readFile)
 import Database.SQLite.Simple
   ( Connection
@@ -82,6 +84,17 @@ main' port database = do
   -- Run the web server.
   scotty port (app withConn)
 
+styledPage body =
+  "<!DOCTYPE HTML><html><head><title>gogurl</title><style>" <>
+  "body { font-family: sans-serif; color: #444; width: 480px; margin: 0 auto; }" <>
+  "ul { padding: 0; list-style: none; }" <>
+  "h1 { margin: 48px 0 24px; }" <>
+  ".prefix { color: #999 }" <>
+  "a { text-decoration: none; color: inherit; }"  <>
+  "li { margin: 16px 0; transition: transform ease-out 120ms }" <>
+  "li:hover { transform: translateX(8px) } li p { margin: 8px 0; }"  <>
+  "</style></head><body><h1>gogurl</h1>" <> body <> "</body></html>"
+
 app :: (forall r. (Connection -> IO r) -> IO r) -> ScottyM ()
 app withConn
   -- Partially apply Sqlite functions to the given database runner, so the
@@ -103,7 +116,12 @@ app withConn
   get "/" $ do
     topUrls :: [(Text, Text)] <-
       query "SELECT name, url FROM Link ORDER BY hits DESC" ()
-    json topUrls
+    html $ styledPage $
+      "<ul>" <> (mconcat $ map (\(a, b) ->
+        fromStrict $ mconcat [
+          "<li><a href='/", a, "'><p><span class='prefix'>go / </span>", a, "</p><p>", b, "</p>", "</a></li>"
+        ])
+      topUrls) <> "</ul>"
 
   get "/links" $ redirect "https://go/"
 
