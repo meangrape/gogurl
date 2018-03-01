@@ -21,7 +21,7 @@ import Data.Text (Text)
 import qualified Data.Text.IO as T (readFile)
 import Database.SQLite.Simple
   ( Connection
-  , FromRow
+  , FromRow(..)
   , Only(Only, fromOnly)
   , Query(Query)
   , ToRow
@@ -90,31 +90,40 @@ app withConn
  = do
   let statement :: ToRow v => Query -> v -> ActionM ()
       statement q v = liftIO (withConn (\conn -> Sqlite.execute conn q v))
+
       -- Execute a SQL query.
   let query :: (FromRow r, ToRow v) => Query -> v -> ActionM [r]
       query q v = liftIO (withConn (\conn -> Sqlite.query conn q v))
+
       -- Get the rowid of the last successful INSERT statement.
   let lastInsertRowId :: ActionM Int64
       lastInsertRowId = liftIO (withConn Sqlite.lastInsertRowId)
+
   -- Here are the actual handlers.
   get "/" $ do
-    topUrls <- query "SELECT url FROM Link ORDER BY hits DESC" ()
-    json (map fromOnly topUrls :: [Text])
+    topUrls :: [(Text, Text)] <-
+      query "SELECT name, url FROM Link ORDER BY hits DESC" ()
+    json topUrls
+
   get "/links" $ redirect "https://go/"
+
   post "/links" $ do
     Link name url <- jsonData
     statement "INSERT INTO link (name, url) VALUES (?, ?)" (name, url)
     newID <- lastInsertRowId
     json $ object ["result" .= String "success", "id" .= newID]
+
   get "/links/:name/delete" $ do
     name <- param "name"
     statement "DELETE FROM link WHERE name = ?" (Only (name :: Text))
     json $ object ["result" .= String "success", "name" .= name]
+
   get "/links/:name/edit/:url" $ do
     name :: Text <- param "name"
     url :: Text <- param "url"
     statement "UPDATE link SET url = ? WHERE name = ?" (url, name)
     json $ object ["result" .= String "success", "id" .= name]
+
   get "/:name" $ do
     name :: Text <- param "name"
     urls <- query "SELECT url FROM link WHERE name = ?" (Only name)
