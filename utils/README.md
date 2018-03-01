@@ -12,6 +12,7 @@ $SERVER should point to your gogurl server's FQDN (not URL).
 `rmgo gcp`
 `editgo gcp http://a-different-url.google.com`
 `getgo gcp`
+`listgo`
 
-All except `getgo` return the server's JSON response. `getgo` returns the URL
-attached to a short name.
+All except `getgo` and `listgo` return the server's JSON response. `getgo` returns the URL
+attached to a short name. `listgo` returns all short names and associated URLs.
