@@ -20,6 +20,7 @@ import Data.Monoid ((<>))
 import Data.Pool
 import Data.Text (Text)
 import Data.Text.Lazy (fromStrict)
+import qualified Data.Text.Lazy as Lazy
 import qualified Data.Text.IO as T (readFile)
 import Database.SQLite.Simple
   ( Connection
@@ -84,6 +85,7 @@ main' port database = do
   -- Run the web server.
   scotty port (app withConn)
 
+styledPage :: Lazy.Text -> Lazy.Text
 styledPage body =
   "<!DOCTYPE HTML><html><head><title>gogurl</title><style>" <>
   "body { font-family: sans-serif; color: #444; width: 480px; margin: 0 auto; }" <>
