@@ -11,15 +11,12 @@ main = runManaged $ do
   background ("gogurl -p 16789 -d " ++ tempdir ++ "/db")
   liftIO (threadDelay 1000000)
 
-  -- Get zero links
-  (@?= "[]")
-    =<< bash "curl -s localhost:16789/"
-
   -- Put: foo -> bar
   _ <- bash "curl -s localhost:16789/links -d '{\"name\":\"foo\",\"url\":\"bar\"}'"
 
   (@?= "Location: bar\r\n")
     =<< bash "curl -i -s localhost:16789/foo | grep Location"
+
   (@?= "[[\"foo\",\"bar\"]]")
     =<< bash "curl -s localhost:16789/"
 
@@ -28,8 +25,6 @@ main = runManaged $ do
 
   (@?= "Location: qux\r\n")
     =<< bash "curl -i -s localhost:16789/foo | grep Location"
-  (@?= "[[\"foo\",\"qux\"]]")
-    =<< bash "curl -s localhost:16789/"
 
   -- Delete: foo -> qux
   (@?= "{\"result\":\"success\",\"name\":\"foo\"}")
