@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 NAME="$1"
-CERT=""
+CERT="/home/jayed/keys/meangrape_hackage.pem"
 SERVER=""
 
 if [[ -z "$CERT" ]]; then
@@ -14,4 +14,5 @@ if [[ -z "$SERVER" ]]; then
     exit
 fi
 
-curl -E $CERT -i -s https://$SERVER/$NAME | grep Location | cut -f2
+curl -E $CERT -i -s "https://$SERVER/$NAME" | grep Location | cut -f2 -d' '
+
