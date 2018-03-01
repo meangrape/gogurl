@@ -16,7 +16,7 @@ main = runManaged $ do
     =<< bash "curl -s localhost:16789/"
 
   -- Put: foo -> bar
-  bash "curl -s localhost:16789/links -d '{\"name\":\"foo\",\"url\":\"bar\"}'"
+  _ <- bash "curl -s localhost:16789/links -d '{\"name\":\"foo\",\"url\":\"bar\"}'"
 
   (@?= "Location: bar\r\n")
     =<< bash "curl -i -s localhost:16789/foo | grep Location"
@@ -24,7 +24,7 @@ main = runManaged $ do
     =<< bash "curl -s localhost:16789/"
 
   -- Update: foo -> qux
-  bash "curl -s localhost:16789/links/foo/edit/qux"
+  _ <- bash "curl -s localhost:16789/links/foo/edit/qux"
 
   (@?= "Location: qux\r\n")
     =<< bash "curl -i -s localhost:16789/foo | grep Location"
@@ -42,4 +42,5 @@ background s =
 bash :: MonadIO m => String -> m String
 bash s = liftIO (readProcess "bash" ["-c", s] "")
 
+(@?=) :: (Show a, Eq a, MonadIO m) => a -> a -> m ()
 (@?=) x y = liftIO (x HUnit.@?= y)
