@@ -13,16 +13,27 @@ build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
 
+library
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  build-depends:       base
+                     , sqlite-simple
+                     , template-haskell
+                     , text
+  exposed-modules:     Gogurl.Sqlite
+
 executable gogurl
   hs-source-dirs:      app
   main-is:             Main.hs
   default-language:    Haskell2010
+  ghc-options:         -Wall
   build-depends:       base >= 4.7 && < 5
                      , aeson
+                     , gogurl
                      , optparse-applicative
                      , resource-pool
                      , scotty
-                     , sqlite-simple
                      , text
 
 test-suite gogurl-app-tests
@@ -30,6 +41,7 @@ test-suite gogurl-app-tests
   type:                exitcode-stdio-1.0
   main-is:             Main.hs
   default-language:    Haskell2010
+  ghc-options:         -Wall
   build-depends:       base >= 4.7 && < 5
                      , HUnit
                      , managed
