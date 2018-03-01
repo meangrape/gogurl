@@ -1,8 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Main where
+
+import Gogurl.Sqlite (Connection, FromRow, Only(Only), Query, sql)
+
+import qualified Gogurl.Sqlite as Sqlite
+  (close, execute, executeFile, lastInsertRowId, open, query)
 
 import Control.Monad (join)
 import Control.Monad.IO.Class (liftIO)
@@ -80,8 +86,7 @@ main' port database = do
   let withConn :: (Connection -> IO r) -> IO r
       withConn = withResource pool
   -- Create tables if they don't exist.
-  createTables <- T.readFile "db/links.sql"
-  withConn (\conn -> Sqlite.execute conn (Query createTables) ())
+  withConn (\conn -> Sqlite.executeFile conn "db/links.sql")
   -- Run the web server.
   scotty port (app withConn)
 
@@ -101,14 +106,14 @@ app :: (forall r. (Connection -> IO r) -> IO r) -> ScottyM ()
 app withConn
   -- Partially apply Sqlite functions to the given database runner, so the
   -- handlers become more readable.
-      -- Execute a SQL statement.
  = do
-  let statement :: ToRow v => Query -> v -> ActionM ()
-      statement q v = liftIO (withConn (\conn -> Sqlite.execute conn q v))
+      -- Execute a SQL statement.
+  let statement :: Query -> ActionM ()
+      statement q = liftIO (withConn (\conn -> Sqlite.execute conn q))
 
       -- Execute a SQL query.
-  let query :: (FromRow r, ToRow v) => Query -> v -> ActionM [r]
-      query q v = liftIO (withConn (\conn -> Sqlite.query conn q v))
+  let query :: FromRow r => Query -> ActionM [r]
+      query q = liftIO (withConn (\conn -> Sqlite.query conn q))
 
       -- Get the rowid of the last successful INSERT statement.
   let lastInsertRowId :: ActionM Int64
@@ -129,26 +134,34 @@ app withConn
 
   post "/links" $ do
     Link name url <- jsonData
-    statement "INSERT INTO link (name, url) VALUES (?, ?)" (name, url)
+    statement [sql| INSERT INTO link (name, url)
+                    VALUES (:name, :url) |]
     newID <- lastInsertRowId
     json $ object ["result" .= String "success", "id" .= newID]
 
   get "/links/:name/delete" $ do
-    name <- param "name"
-    statement "DELETE FROM link WHERE name = ?" (Only (name :: Text))
+    name :: Text <- param "name"
+    statement [sql| DELETE FROM link
+                    WHERE name = :name |]
     json $ object ["result" .= String "success", "name" .= name]
 
   get "/links/:name/edit/:url" $ do
     name :: Text <- param "name"
     url :: Text <- param "url"
-    statement "UPDATE link SET url = ? WHERE name = ?" (url, name)
+    statement [sql| UPDATE link
+                    SET url = :url
+                    WHERE name = :name |]
     json $ object ["result" .= String "success", "id" .= name]
 
   get "/:name" $ do
     name :: Text <- param "name"
-    urls <- query "SELECT url FROM link WHERE name = ?" (Only name)
+    urls <- query [sql| SELECT url
+                        FROM link
+                        WHERE name = :name |]
     case urls of
       [] -> errorJson 2 "No record found"
       Only url:_ -> do
-        statement "UPDATE link SET hits = hits + 1 WHERE name = ?" (Only name)
+        statement [sql| UPDATE link
+                        SET hits = hits + 1
+                        WHERE name = :name |]
         redirect url

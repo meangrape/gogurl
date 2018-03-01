@@ -17,6 +17,9 @@ main = runManaged $ do
   (@?= "Location: bar\r\n")
     =<< bash "curl -i -s localhost:16789/foo | grep Location"
 
+  (@?= "[[\"foo\",\"bar\"]]")
+    =<< bash "curl -s localhost:16789/"
+
   -- Update: foo -> qux
   bash "curl -s localhost:16789/links/foo/edit/qux"
 
