@@ -15,7 +15,7 @@ fi
 
 # Bash arrays ahead
 IFS="[]"
-links=($( curl -E $CERT -s http://$SERVER ))
+links=($( curl -E $CERT -s https://$SERVER ))
 unset IFS
 
 # Remove all commas in array elements
