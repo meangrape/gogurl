@@ -6,7 +6,7 @@ Perl and its URI:Escape module.
 
 Each tool contains two variables that need to be edited:
 $CERT should point to your client certificate on the filesystem.
-$SERVER should point to your gogurl server's URL.
+$SERVER should point to your gogurl server's FQDN (not URL).
 
 `addgo gcp http://console.google.com`
 `rmgo gcp`

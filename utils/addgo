@@ -15,5 +15,5 @@ if [[ -z "$SERVER" ]]; then
     exit
 fi
 
-curl -XPOST -H "Content-Type: application/json" -E $CERT -d \
-\{\"name\":\"$NAME\",\"url\":\"$URL\"\} https://$SERVER/links
+curl -XPOST -H "Content-Type: application/json" -E "$CERT" -d \
+\{\"name\":\"$NAME\",\"url\":\"$URL\"\} "https://$SERVER/links"
