@@ -131,6 +131,9 @@ clickable.
 
 ![gogurl Interface screenshot](/docs/images/gogurl.png?raw=true "gogurl
 interface")
+
 # Contributors
 
 [Mitchell W Rosen](https://github.com/mitchellwrosen)
+[Matt Brandly](https://github.com/brandly)
+[Nick Lawler](https://github.con/xilnocas)
