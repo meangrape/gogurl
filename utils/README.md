@@ -3,13 +3,13 @@
 `editgo` is broken. The server dislikes HTTP encoded URLs.
 
 This is a small collection of bash scripts that wrap curl and make it easy to
-interact with a gogurl server. One tool, `editgo` relies on the presence of
+interact with a **gogurl** server. One tool, `editgo` relies on the presence of
 Perl and its URI:Escape module. `listgo` relies on Perl's HTML::Strip module
 which is not part of the base install.
 
 Each tool contains two variables that need to be edited:
 *$CERT* should point to your client certificate on the filesystem.
-*$SERVER* should point to your gogurl server's FQDN (not URI).
+*$SERVER* should point to your **gogurl** server's FQDN (not URI).
 
 `addgo gcp http://console.google.com`
 
