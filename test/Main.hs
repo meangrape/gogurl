@@ -6,29 +6,24 @@ import System.Process
 import qualified Test.HUnit as HUnit
 
 main :: IO ()
-main = runManaged $ do
-  tempdir <- managed (withSystemTempDirectory "gogurl")
-  background ("gogurl -p 16789 -d " ++ tempdir ++ "/db")
-  liftIO (threadDelay 1000000)
-
+main =
+  runManaged $ do
+    tempdir <- managed (withSystemTempDirectory "gogurl")
+    background ("gogurl -p 16789 -d " ++ tempdir ++ "/db")
+    liftIO (threadDelay 1000000)
   -- Put: foo -> bar
-  _ <- bash "curl -s localhost:16789/links -d '{\"name\":\"foo\",\"url\":\"bar\"}'"
-
-  (@?= "Location: bar\r\n")
-    =<< bash "curl -i -s localhost:16789/foo | grep Location"
-
-  (@?= "[[\"foo\",\"bar\"]]")
-    =<< bash "curl -s localhost:16789/"
-
+    _ <-
+      bash
+        "curl -s localhost:16789/links -d '{\"name\":\"foo\",\"url\":\"bar\"}'"
+    (@?= "Location: bar\r\n") =<<
+      bash "curl -i -s localhost:16789/foo | grep Location"
   -- Update: foo -> qux
-  _ <- bash "curl -s localhost:16789/links/foo/edit/qux"
-
-  (@?= "Location: qux\r\n")
-    =<< bash "curl -i -s localhost:16789/foo | grep Location"
-
+    _ <- bash "curl -s localhost:16789/links/foo/edit/qux"
+    (@?= "Location: qux\r\n") =<<
+      bash "curl -i -s localhost:16789/foo | grep Location"
   -- Delete: foo -> qux
-  (@?= "{\"result\":\"success\",\"name\":\"foo\"}")
-    =<< bash "curl -s localhost:16789/links/foo/delete"
+    (@?= "{\"result\":\"success\",\"name\":\"foo\"}") =<<
+      bash "curl -s localhost:16789/links/foo/delete"
 
 background :: String -> Managed ()
 background s =
