@@ -15,5 +15,5 @@ fi
 
 # Bash arrays ahead
 links=$( curl -E $CERT -s https://$SERVER )
-declare -a html=$( perl -MHTML::Strip -lpe '$hs=HTML::Strip->new(); $_ = $hs->parse( $_ )' <<< "$links" )
+declare -a html=$( perl -MHTML::Strip -lpe 'BEGIN { $hs=HTML::Strip->new(); } $_ = $hs->parse( $_ )' <<< "$links" )
 echo "${html[@]}"
