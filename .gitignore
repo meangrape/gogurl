@@ -21,3 +21,5 @@ cabal.project.local~
 .HTF/
 .ghc.environment.*
 db/*.db
+db/*-shm
+db/*-wal
