@@ -133,13 +133,13 @@ nginx config looks like this:
   }
   ```
 
-# <a name="interface">Interface</a>
+# <a name="interface">UI</a>
 
 The root URL presents a list of all short names sorted in descending order of
 hits (the more people use a go/url, the higher it appears.) Each item is a
 clickable link.
 
-![gogurl Interface screenshot](/docs/images/gogurl.png?raw=true "gogurl
+![gogurl UI screenshot](/docs/images/gogurl.png?raw=true "gogurl
 interface")
 
 # Contributors
