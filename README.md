@@ -73,10 +73,13 @@ installed it some time ago, you might need to run `stack upgrade` and then
 build` to download the dependencies and compile them and the `gogurl` binary.
 `stack install` will copy `gogurl` into `~/.local/bin`.
 
-Currently, it creates a pool of 5 database connections and serves on \*:8082.
-Both of these are hard-coded in app/Main.hs at the moment.
+Currently, it creates a pool of 5 database connections and serves on \*:8082
+from a sqlite3 database in db/link.db. The first is hard-coded in app/Main.hs.
+The serving port and database connection string have defaults, but are
+configurable via the `-p` and `-d` command-line flags.
 
 # SQLite WAL mode
+
 It's recommended to run sqlite in [WAL mode](https://www.sqlite.org/wal.html)
 since this is a multi-reader/multi-writer application with a persistent
 connection pool. You set this mode by running `PRAGMA journal_mode=WAL;` in a
