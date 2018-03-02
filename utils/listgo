@@ -13,6 +13,10 @@ if [[ -z "$SERVER" ]]; then
     exit
 fi
 
+echo "$0 is broken."
+echo "This endpoint returns HTML now not JSON."
+exit
+
 # Bash arrays ahead
 IFS="[]"
 links=($( curl -E $CERT -s https://$SERVER ))
