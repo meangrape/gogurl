@@ -92,10 +92,9 @@ configurable via the `-p` and `-d` command-line flags.
 # SQLite WAL mode
 
 It's recommended to run sqlite in [WAL mode](https://www.sqlite.org/wal.html)
-since this is a multi-reader/multi-writer application with a persistent
-connection pool. You set this mode by running `PRAGMA journal_mode=WAL;` in a
-sqlite connection and restarting gogurl. This is persistent and need only be
-done once.
+since this is a multi-reader/multi-writer application. You set this mode by
+running `PRAGMA journal_mode=WAL;` in a sqlite connection and restarting
+gogurl. This is persistent setting and need only be done once.
 
 # Nginx
 
