@@ -23,6 +23,15 @@ which you should, put an nginx server in front.
 
 At that point you can access the various API endpoints:
 
+# Usage
+Usage: **gogurl [-p|--port PORT] [-d|--database DATABASE]**
+
+**Available options:**
+  *-h,--help*                Show this help text
+  *-p,--port PORT*           port (default: 8082)
+  *-d,--database DATABASE*   Sqlite database connection
+                           string (default: "db/links.db")
+
 # API
 **GET /**
   prints all the links we know about in descending order of use
