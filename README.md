@@ -26,7 +26,7 @@ At that point you can access the various API endpoints:
 # API
 **GET /**
   prints all the links we know about in descending order of use
-  Each item is clickable. Take a [look](#interface)
+  Each item is clickable. Take a [look](#interface).
 
 **GET /links**
   redirects to http://go/ -- this is because we want to redirect through the
