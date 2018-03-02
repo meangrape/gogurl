@@ -95,7 +95,7 @@ nothing to enforce security of any kind on it's own.*
 
 Creating client certificates is out of scope for this documentation, but that's
 my preferred method for controlling website access. The relevant portion of my
-nginxx config looks like this:
+nginx config looks like this:
 
     ```
     server {
