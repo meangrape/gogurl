@@ -107,31 +107,31 @@ Creating client certificates is out of scope for this documentation, but that's
 my preferred method for controlling website access. The relevant portion of my
 nginx config looks like this:
 
-    ```
-    server {
-    listen       443 ssl;
-    server_name  go.${FQDN} go;
+  ```nginx
+  server {
+  listen       443 ssl;
+  server_name  go.${FQDN} go;
 
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
-    #access_log  logs/host.access.log  main;
-    ssl_certificate        certs/$YOUR.crt;
-    ssl_certificate_key    certs/$YOUR.key;
-    ssl_client_certificate certs/ca.crt;
-    ssl_verify_client      on;
-    ssl_dhparam            certs/dhparam.pem;
+  #access_log  logs/host.access.log  main;
+  ssl_certificate        certs/$YOUR.crt;
+  ssl_certificate_key    certs/$YOUR.key;
+  ssl_client_certificate certs/ca.crt;
+  ssl_verify_client      on;
+  ssl_dhparam            certs/dhparam.pem;
 
-    ssl_session_cache    shared:SSL:1m;
-    ssl_session_timeout  5m;
+  ssl_session_cache    shared:SSL:1m;
+  ssl_session_timeout  5m;
 
-    ssl_protocols TLSv1.1 TLSv1.2;
-    ssl_prefer_server_ciphers  on;
-    ssl_ciphers  ECDH+AESGCM:ECDH+AES256:ECDH+AES128:DHE+AES128:!ADH:!AECDH:!MD5!aNULL;
+  ssl_protocols TLSv1.1 TLSv1.2;
+  ssl_prefer_server_ciphers  on;
+  ssl_ciphers  ECDH+AESGCM:ECDH+AES256:ECDH+AES128:DHE+AES128:!ADH:!AECDH:!MD5!aNULL;
 
-    location / {
-        proxy_pass http://127.0.0.1:8082;
-    }
-    ```
+  location / {
+      proxy_pass http://127.0.0.1:8082;
+  }
+  ```
 
 # <a name="interface">Interface</a>
 
