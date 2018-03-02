@@ -123,6 +123,14 @@ nginxx config looks like this:
     }
     ```
 
+# Interface
+
+The root URL presents a list of all short names sorted in descending order of
+hits (the more people use a go/url, the higher it appears.) Each item is a
+clickable.
+
+![gogurl Interface screenshot](/docs/images/gogurl.png?raw=true "gogurl
+interface")
 # Contributors
 
 [Mitchell W Rosen](https://github.com/mitchellwrosen)
