@@ -37,10 +37,8 @@ Usage: **gogurl [-p|--port PORT] [-d|--database DATABASE]**
 # API
 **GET /**
   The root URL presents a list of all short names sorted in descending order of
-  hits (the more people use a go/url, the higher it appears.) Each item is a
-  clickable link.
-
-  Each item is clickable. Take a [look](#interface).
+  hits (the more people use a go/url, the higher it appears.) Each item is
+  clickable. Take a [look](#interface).
 
 **GET /links**
   redirects to http://go/ -- this is because we want to redirect through the
