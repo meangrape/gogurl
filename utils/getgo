@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 NAME="$1"
-CERT="/home/jayed/keys/meangrape_hackage.pem"
+CERT=""
 SERVER=""
 
 if [[ -z "$CERT" ]]; then
