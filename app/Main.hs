@@ -139,7 +139,7 @@ app withConn
               ])
          topUrls) <>
       "</ul>"
-  get "/links" $ redirect "https://go/"
+  get "/links" $ redirect "http://go/"
   post "/links" $ do
     Link name url <- jsonData
     statement
