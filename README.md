@@ -139,3 +139,7 @@ interface")
 [Matt Brandly](https://github.com/brandly)
 
 [Nick Lawler](https://github.con/xilnocas)
+
+[Brendan Kohler](https://github.com/xnomagichash)
+
+[Jay Edwards](https://github.com/jayed)
