@@ -130,7 +130,7 @@ app withConn
             mconcat
               [ "<li><a href='/"
               , a
-              , "'><p><span class='prefix'>go / </span>"
+              , "'><p><span class='prefix'>go/</span>"
               , a
               , "</p><p>"
               , b
