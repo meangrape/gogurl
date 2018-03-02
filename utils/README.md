@@ -2,8 +2,6 @@
 
 `editgo` is broken. The server dislikes HTTP encoded URLs.
 
-`listgo` is broken because we return HTML and not JSON now.
-
 This is a small collection of bash scripts that wrap curl and make it easy to
 interact with a gogurl server. One tool, `editgo` relies on the presence of
 Perl and its URI:Escape module. `lisgo` relies on Perl's HTML::Strip module
