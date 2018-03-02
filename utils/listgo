@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CERT="/home/jayed/keys/meangrape_hackage.pem"
+CERT=""
 SERVER=""
 
 if [[ -z "$CERT" ]]; then
@@ -18,12 +18,9 @@ echo "This endpoint returns HTML now not JSON."
 exit
 
 # Bash arrays ahead
-IFS="[]"
 links=($( curl -E $CERT -s https://$SERVER ))
-unset IFS
 
-# Remove all commas in array elements
-declare -a nocomma=( ${links[@]/,/} )
+stripped=$( echo "$URL" | perl -MHTML::Strip -wlne 'my $hs=HTML::Strip.new(); my
+$clean=$hs->parse($_)' )
 
-# Replace two "s with a space
-printf '%s\n' "${nocomma[@]/\"\"/\ }"
+echo $stripped
