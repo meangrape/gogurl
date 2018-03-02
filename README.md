@@ -132,5 +132,7 @@ interface")
 # Contributors
 
 [Mitchell W Rosen](https://github.com/mitchellwrosen)
+
 [Matt Brandly](https://github.com/brandly)
+
 [Nick Lawler](https://github.con/xilnocas)
