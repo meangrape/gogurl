@@ -15,7 +15,7 @@ Each tool contains two variables that need to be edited:
 
 `rmgo gcp`
 
-`editgo gcp http://a-different-url.google.com`
+`~~editgo gcp http://a-different-url.google.com~~`
 
 `getgo gcp`
 
