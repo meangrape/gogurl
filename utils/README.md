@@ -15,11 +15,11 @@ Each tool contains two variables that need to be edited:
 
 `rmgo gcp`
 
-`~~editgo gcp http://a-different-url.google.com~~`
-
 `getgo gcp`
 
 `listgo`
+
+~~editgo gcp http://a-different-url.google.com~~
 
 All except `getgo` and `listgo` return the server's JSON response. `getgo` returns the URL
 attached to a short name.
