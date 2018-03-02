@@ -110,7 +110,7 @@ nginx config looks like this:
   ```nginx
   server {
   listen       443 ssl;
-  server_name  go.${FQDN} go;
+  server_name  go.$domain.$tld go;
 
   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
