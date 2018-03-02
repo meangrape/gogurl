@@ -32,9 +32,7 @@ Usage: **gogurl [-p|--port PORT] [-d|--database DATABASE]**
 
   *-p,--port PORT*           port (default: 8082)
 
-  *-d,--database DATABASE*   Sqlite database connection
-
-                           string (default: "db/links.db")
+  *-d,--database DATABASE*   Sqlite database connection (default: "db/links.db")
 
 # API
 **GET /**
