@@ -9,7 +9,7 @@ which is not part of the base install.
 
 Each tool contains two variables that need to be edited:
 *$CERT* should point to your client certificate on the filesystem.
-*$SERVER* should point to your gogurl server's FQDN (not URL).
+*$SERVER* should point to your gogurl server's FQDN (not URI).
 
 `addgo gcp http://console.google.com`
 
