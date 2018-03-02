@@ -36,7 +36,10 @@ Usage: **gogurl [-p|--port PORT] [-d|--database DATABASE]**
 
 # API
 **GET /**
-  prints all the links we know about in descending order of use
+  The root URL presents a list of all short names sorted in descending order of
+  hits (the more people use a go/url, the higher it appears.) Each item is a
+  clickable link.
+
   Each item is clickable. Take a [look](#interface).
 
 **GET /links**
@@ -134,10 +137,6 @@ nginx config looks like this:
   ```
 
 # <a name="interface">UI</a>
-
-The root URL presents a list of all short names sorted in descending order of
-hits (the more people use a go/url, the higher it appears.) Each item is a
-clickable link.
 
 ![gogurl UI screenshot](/docs/images/gogurl.png?raw=true "gogurl
 interface")
