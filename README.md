@@ -25,10 +25,8 @@ At that point you can access the various API endpoints:
 
 # API
 **GET /**
-  prints all the links we know about
-  This is terrible, ugly, and only barely useful.
-  But I'm tired of learning about Haskell and want to
-  get this deployed.
+  prints all the links we know about in descending order of use
+  Each item is clickable. Take a [look](#interface)
 
 **GET /links**
   redirects to http://go/ -- this is because we want to redirect through the
@@ -61,7 +59,6 @@ Here's how to curl it remotely, with a client certificate:
 
 **GET /links/$name/delete**
   Deletes the named shortcut
-
 
 # Installation
 
@@ -123,7 +120,7 @@ nginxx config looks like this:
     }
     ```
 
-# Interface
+# <a name="interface">Interface</a>
 
 The root URL presents a list of all short names sorted in descending order of
 hits (the more people use a go/url, the higher it appears.) Each item is a
