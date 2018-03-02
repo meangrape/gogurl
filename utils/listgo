@@ -13,14 +13,7 @@ if [[ -z "$SERVER" ]]; then
     exit
 fi
 
-echo "$0 is broken."
-echo "This endpoint returns HTML now not JSON."
-exit
-
 # Bash arrays ahead
-links=($( curl -E $CERT -s https://$SERVER ))
-
-stripped=$( echo "$URL" | perl -MHTML::Strip -wlne 'my $hs=HTML::Strip.new(); my
-$clean=$hs->parse($_)' )
-
-echo $stripped
+links=$( curl -E $CERT -s https://$SERVER )
+declare -a html=$( perl -MHTML::Strip -lpe '$hs=HTML::Strip->new(); $_ = $hs->parse( $_ )' <<< "$links" )
+echo "${html[@]}"
