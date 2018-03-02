@@ -1,7 +1,7 @@
 # gogurl
 
 gogurl is a URL shortener/redirector.
-So, if you go to [go/mail](http://go/mail) in your browser,
+So, if you enter [go/mail](http://go/mail) in your browser,
 it will redirect you to your Google inbox (assuming
 you have created the database entry).
 
@@ -14,14 +14,14 @@ Some other examples:
 * go/flour -- [Flour Bakery's](https://flourbakery.com/) order page
 
 It's meant to be hosted at "go" in your local domain.
-The fastest, most fool-proof way is to make an /etc/hosts entry.
-If you control your office DNS, then make ".local" or something similar
+The fastest, most fool-proof, non-scalable way is an /etc/hosts entry.
+If you control your office DNS, then make a searchable ".local" domain
 and create go as a CNAME.
 
 NB: gogurl doesn't support SSL or authentication of any kind. If you care,
-which you should, put an nginx server in front.
+**which you should**, put an nginx server in front.
 
-At that point you can access the various API endpoints:
+At this point you can access the various API endpoints:
 
 # Usage
 Usage: **gogurl [-p|--port PORT] [-d|--database DATABASE]**
@@ -41,7 +41,7 @@ Usage: **gogurl [-p|--port PORT] [-d|--database DATABASE]**
   clickable. Take a [look](#interface).
 
 **GET /links**
-  redirects to http://go/ -- this is because we want to redirect through the
+  redirects to [go](https://go/) -- this is because we want to redirect through the
   nginx server in front of gogurl; we don't want to redirect straight to gogurl.
 
 **POST /links**
@@ -50,7 +50,7 @@ Usage: **gogurl [-p|--port PORT] [-d|--database DATABASE]**
   {
    "name": "shortname",
    "url":  "long_url",
-   }
+  }
    ```
 
 Here's the invocation to use if you're on the gogurl server:
@@ -63,7 +63,8 @@ Here's how to curl it remotely, with a client certificate:
 
    You'll notice the full domain name. This is because in nginx, in order to
    stop TLS complaining at us, we use `go.domain.tld` as the server_name with an
-   alias to `go`
+   alias to `go`. If you create a self-signed certificate for "go" this won't be
+   a problem.
 
 **GET /links/$name/edit/$newurl**
   Edits the target URL for a name
@@ -100,7 +101,7 @@ gogurl. This is a persistent setting and need only be done once.
 # Nginx
 
 You will want nginx in front of gogurl. One: you don't want people sniffing on
-the URLs you go to. Two: you don't want people to overwrite your links
+the URLs you use. Two: you don't want people to overwrite your links
 with URLs pointing to malicious software. To be clear, gogurl does *absolutely
 nothing to enforce security of any kind on it's own.*
 
