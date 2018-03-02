@@ -6,7 +6,8 @@
 
 This is a small collection of bash scripts that wrap curl and make it easy to
 interact with a gogurl server. One tool, `editgo` relies on the presence of
-Perl and its URI:Escape module.
+Perl and its URI:Escape module. `lisgo` relies on Perl's HTML::Strip module
+which is not part of the base install.
 
 Each tool contains two variables that need to be edited:
 *$CERT* should point to your client certificate on the filesystem.
