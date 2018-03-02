@@ -1,7 +1,7 @@
 # gogurl
 
 gogurl is a URL shortener/redirector.
-So, if you enter [go/mail](http://go/mail) in your browser,
+If you enter [go/mail](http://go/mail) in your browser,
 it will redirect you to your Google inbox (assuming
 you have created the database entry).
 
@@ -13,7 +13,7 @@ Some other examples:
 * go/koreana -- [Koreana's](http://koreanaboston.com/) reservations page
 * go/flour -- [Flour Bakery's](https://flourbakery.com/) order page
 
-It's meant to be hosted at "go" in your local domain.
+It's meant to be hosted at [go](http://go/) in your local domain.
 The fastest, most fool-proof, non-scalable way is an /etc/hosts entry.
 If you control your office DNS, then make a searchable ".local" domain
 and create go as a CNAME.
