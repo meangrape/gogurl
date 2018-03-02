@@ -57,7 +57,7 @@ Here's the invocation to use if you're on the gogurl server:
 
 Here's how to curl it remotely, with a client certificate:
    `curl -XPOST -H "Content-Type: application/json" -E ./meangrape.pem -d
-   '{"name":"pro","url":"https://graphs.sentenai.net/prometheus"}'
+   '{"name":"mail","url":"https://mail.google.com"}'
    https://go.sentenai.net/links`
 
    You'll notice the full domain name. This is because in nginx, in order to
