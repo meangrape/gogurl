@@ -21,8 +21,6 @@ and create go as a CNAME.
 NB: gogurl doesn't support SSL or authentication of any kind. If you care,
 **which you should**, put an nginx server in front.
 
-At this point you can access the various API endpoints:
-
 # Usage
 Usage: **gogurl [-p|--port PORT] [-d|--database DATABASE]**
 
