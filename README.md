@@ -1,6 +1,7 @@
 # gogurl
 
 [![Build Status](https://travis-ci.org/jayed/gogurl.svg?branch=master)](https://travis-ci.org/jayed/gogurl) [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjayed%2Fgogurl.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjayed%2Fgogurl?ref=badge_shield)
 
 gogurl is a URL shortener/redirector.
 If you enter [go/mail](http://go/mail) in your browser,
@@ -161,3 +162,7 @@ interface")
 [Jay Edwards](https://github.com/jayed)
 
 [Pang Yan Han](https://github.com/yanhan)
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjayed%2Fgogurl.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjayed%2Fgogurl?ref=badge_large)
