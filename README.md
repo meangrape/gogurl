@@ -1,5 +1,7 @@
 # gogurl
 
+[![Build Status](https://travis-ci.org/jayed/gogurl.svg?branch=master)](https://travis-ci.org/jayed/gogurl)
+
 gogurl is a URL shortener/redirector.
 If you enter [go/mail](http://go/mail) in your browser,
 it will redirect you to your Google inbox (assuming
@@ -55,7 +57,7 @@ Here's the invocation to use if you're on the gogurl server:
 
     # Using curl
     curl -XPOST -H "Content-Type: application/json" -d '{"name":"mail","url":"https://mail.google.com/a/sentenai.com"}' http://go/links
-    
+
     # Using httpie
     http go name=mail url=https://mail.google.com/a/sentenai.com
 
@@ -63,7 +65,7 @@ Here's how to curl it remotely, with a client certificate:
 
     # Using curl
     curl -XPOST -H "Content-Type: application/json" -E ./meangrape.pem -d '{"name":"mail","url":"https://mail.google.com"}' https://go.sentenai.net/links
-    
+
     # Using httpie
     http --cert ./meangrape.pem go name=mail url=https://mail.google.com
 
