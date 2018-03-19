@@ -1,6 +1,6 @@
 # gogurl
 
-[![Build Status](https://travis-ci.org/jayed/gogurl.svg?branch=master)](https://travis-ci.org/jayed/gogurl)
+[![Build Status](https://travis-ci.org/jayed/gogurl.svg?branch=master)](https://travis-ci.org/jayed/gogurl) [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
 
 gogurl is a URL shortener/redirector.
 If you enter [go/mail](http://go/mail) in your browser,
