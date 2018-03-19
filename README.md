@@ -57,7 +57,7 @@ Here's the invocation to use if you're on the gogurl server:
     curl -XPOST -H "Content-Type: application/json" -d '{"name":"mail","url":"https://mail.google.com/a/sentenai.com"}' http://go/links
     
     # Using httpie
-    http name=mail url=https://mail.google.com/a/sentenai.com
+    http go name=mail url=https://mail.google.com/a/sentenai.com
 
 Here's how to curl it remotely, with a client certificate:
 
@@ -65,7 +65,7 @@ Here's how to curl it remotely, with a client certificate:
     curl -XPOST -H "Content-Type: application/json" -E ./meangrape.pem -d '{"name":"mail","url":"https://mail.google.com"}' https://go.sentenai.net/links
     
     # Using httpie
-    http --cert ./meangrape.pem name=mail url=https://mail.google.com
+    http --cert ./meangrape.pem go name=mail url=https://mail.google.com
 
    You'll notice the full domain name. This is because in nginx, in order to
    stop TLS complaining at us, we use `go.domain.tld` as the server_name with an
