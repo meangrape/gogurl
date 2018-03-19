@@ -1,7 +1,6 @@
 # gogurl
 
 [![Build Status](https://travis-ci.org/jayed/gogurl.svg?branch=master)](https://travis-ci.org/jayed/gogurl)
-
 gogurl is a URL shortener/redirector.
 If you enter [go/mail](http://go/mail) in your browser,
 it will redirect you to your Google inbox (assuming
