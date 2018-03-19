@@ -67,7 +67,7 @@ Here's how to curl it remotely, with a client certificate:
     curl -XPOST -H "Content-Type: application/json" -E ./meangrape.pem -d '{"name":"mail","url":"https://mail.google.com"}' https://go.sentenai.net/links
 
     # Using httpie
-    http --cert ./meangrape.pem go name=mail url=https://mail.google.com
+    http --cert ./meangrape.pem go.sentenai.net name=mail url=https://mail.google.com
 
    You'll notice the full domain name. This is because in nginx, in order to
    stop TLS complaining at us, we use `go.domain.tld` as the server_name with an
