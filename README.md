@@ -102,10 +102,10 @@ configurable via the `-p` and `-d` command-line flags.
 
 # SQLite WAL mode
 
-It's recommended to run sqlite in [WAL mode](https://www.sqlite.org/wal.html)
-since this is a multi-reader/multi-writer application. You set this mode by
-running `PRAGMA journal_mode=WAL;` in a sqlite connection and restarting
-gogurl. This is a persistent setting and need only be done once.
+The sqlite is created in [WAL mode](https://www.sqlite.org/wal.html)
+since this is a multi-reader/multi-writer application. Because, in theory,
+gogurl is a heavy-read/low-write database, we also switch the auto WAL
+checkpoint size to 100 pages instead of [1,000 pages](https://www.sqlite.org/pragma.html#pragma_wal_autocheckpoint).
 
 # Nginx
 
