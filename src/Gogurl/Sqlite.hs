@@ -24,7 +24,8 @@ import Language.Haskell.TH.Quote
 import Language.Haskell.TH.Syntax (lift)
 
 import qualified Data.Text.IO as Text
-import qualified Database.SQLite.Simple as Sqlite
+import qualified Database.SQLite3 as Sqlite
+import qualified Database.SQLite.Simple as Sqlite.Simple
 
 import Database.SQLite.Simple as X
   (Connection, FromRow, Only(Only), close, lastInsertRowId, open)
@@ -34,16 +35,16 @@ data Query
 
 execute :: Connection -> Query -> IO ()
 execute conn (Query q params) =
-  Sqlite.executeNamed conn (Sqlite.Query (pack q)) params
+  Sqlite.Simple.executeNamed conn (Sqlite.Simple.Query (pack q)) params
 
 executeFile :: Connection -> FilePath -> IO ()
 executeFile conn path = do
   bytes <- Text.readFile path
-  Sqlite.execute_ conn (Sqlite.Query bytes)
+  Sqlite.exec (Sqlite.Simple.connectionHandle conn) bytes
 
 query :: FromRow r => Connection -> Query -> IO [r]
 query conn (Query q params) =
-  Sqlite.queryNamed conn (Sqlite.Query (pack q)) params
+  Sqlite.Simple.queryNamed conn (Sqlite.Simple.Query (pack q)) params
 
 sql :: QuasiQuoter
 sql =
@@ -101,4 +102,4 @@ namedParam s =
     Nothing ->
         fail ("Variable " ++ s ++ " not in scope")
     Just name ->
-      conE '(Sqlite.:=) `appE` lift (':' : s) `appE` varE name
+      conE '(Sqlite.Simple.:=) `appE` lift (':' : s) `appE` varE name
