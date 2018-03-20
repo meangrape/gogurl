@@ -1,3 +1,5 @@
+PRAGMA journal_mode=WAL;
+PRAGME wal_autocheckpoint=100;
 CREATE TABLE IF NOT EXISTS "link" (
   "name" VARCHAR NOT NULL UNIQUE,
   "url" VARCHAR NOT NULL UNIQUE,
