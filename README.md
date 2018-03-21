@@ -102,7 +102,7 @@ configurable via the `-p` and `-d` command-line flags.
 
 # SQLite WAL mode
 
-The sqlite is created in [WAL mode](https://www.sqlite.org/wal.html)
+The sqlite database is created in [WAL mode](https://www.sqlite.org/wal.html)
 since this is a multi-reader/multi-writer application. Because, in theory,
 gogurl is a heavy-read/low-write database, we also switch the auto WAL
 checkpoint size to 100 pages instead of [1,000 pages](https://www.sqlite.org/pragma.html#pragma_wal_autocheckpoint).
