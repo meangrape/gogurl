@@ -99,6 +99,7 @@ styledPage body =
   "li { margin: 16px 0; transition: transform ease-out 120ms }" <>
   "li:hover { transform: translateX(8px) } li p { margin: 8px 0; }" <>
   "</style></head><body><h1>gogurl</h1>" <>
+  "<form><input name='name' /><input name='url' /><input type='submit' /></form>" <>
   body <>
   "</body></html>"
 
